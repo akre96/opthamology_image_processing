@@ -68,6 +68,8 @@ def get_bcd_image(
     slice_id: int = 30,
 ) -> np.ndarray:
     """ read an image from BCD images
+    Assumes file structure from downloaded zip file intact.
+    Requires 'bcd_dir' to be set in config.
 
     Arguments:
         img_class {str} -- Image class 'Control', 'Moderate', etc.
