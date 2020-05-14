@@ -87,7 +87,7 @@ def segment_tiles(
     )
 
     # Remove edge areas from attention map
-    conv = border_to_min(conv)
+    conv = border_to_min(conv, tile_size)
 
     # Get n_tiles top tiles
     centers = get_top_xy(conv, n=n_tiles, min_dist=min_tile_dist)
@@ -101,28 +101,28 @@ def segment_tiles(
         ec = [cycle[i % len(cycle)] for i in range(n_tiles)]
 
         ax = axes[0]
-        ax.set_title('Attention Map')
+        ax.set_title('Attention Map', fontsize=20)
         ax.imshow(conv)
         for i, [x, y] in enumerate(centers):
             rect = Patch.Rectangle(
                 (x-half_ts, y-half_ts),
                 tile_size,
                 tile_size,
-                linewidth=1,
+                linewidth=2,
                 edgecolor=ec[i],
                 facecolor='none'
             )
             ax.add_patch(rect)
 
         ax = axes[1]
-        ax.set_title('Original Image')
+        ax.set_title('Original Image', fontsize=20)
         ax.imshow(img, cmap='gray')
         for i, [x, y] in enumerate(centers):
             rect = Patch.Rectangle(
                 (x-half_ts, y-half_ts),
                 tile_size,
                 tile_size,
-                linewidth=1,
+                linewidth=2,
                 edgecolor=ec[i],
                 facecolor='none'
             )
@@ -135,7 +135,7 @@ def segment_tiles(
         )
         for i, p in enumerate(patches):
             axes.flatten()[i].imshow(p, cmap='gray')
-            axes.flatten()[i].set_title('Rank: ' + str(i) + ' ' + ec[i])
+            axes.flatten()[i].set_title('Rank: ' + str(i) + ' ' + ec[i], fontsize=15)
         
         plt.show()
 
@@ -325,6 +325,7 @@ def get_xy_subsample_noedge(
 
     subsamp = np.random.choice(xs_nz.shape[0], n_samples, replace=False)
     return list(zip(xs_nz[subsamp], ys_nz[subsamp]))
+
 
 def min_max_normalize(
     data: np.ndarray,
