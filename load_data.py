@@ -6,12 +6,29 @@ import json
 from pathlib import Path
 
 def get_config(config_path: str = 'config.json') -> Dict:
+    """ Loads local path configurations
+
+    Keyword Arguments:
+        config_path {str} -- path to config json file (default: {'config.json'})
+
+    Returns:
+        Dict -- loaded configurations
+    """
     with open(config_path, 'r') as fp:
         config = json.load(fp)
     return config
 
 
 def load_bcd_metadata(sheet_name: str = 'basal cell density'):
+    """ Loads and cleans results from cell counting file
+
+    Keyword Arguments:
+        sheet_name {str} -- which sheet in the file to load
+            (default: {'basal cell density'})
+
+    Returns:
+        pd.DataFrame -- cleaned dataframe of data
+    """
     md_path = get_config()['bcd_metadata']
     metadata = pd.read_excel(
         md_path,
@@ -29,6 +46,15 @@ def convert_id_to_folder_label(
     study_num_eye: str,
     cc_scan: str
 ) -> List:
+    """ convert from pid-eye + scan-slice format to pid-eye-scan + slice 
+
+    Arguments:
+        study_num_eye {str} -- example: N1-OD-1
+        cc_scan {str} -- example: 1-28
+
+    Returns:
+        List -- [pid-eye-scan, slice]
+    """
     cc, img_slice = cc_scan.split('-')
     p_id = '-'.join([study_num_eye, cc])
     p_id = p_id.replace('-OD-', '-od-').replace('-OS-', '-os-')
@@ -44,11 +70,9 @@ def get_bcd_image(
     """ read an image from BCD images
 
     Arguments:
+        img_class {str} -- Image class 'Control', 'Moderate', etc.
+        patient_id {str} -- Patient id example: 'N1-OD-1'
         slice_id {int} -- integer slice number
-
-    Keyword Arguments:
-        img_class {str} -- Image class, random if not set (default: {None})
-        patient_id {str} -- Patient id, random if not set (default: {None})
 
     Raises:
         ValueError: Invalid image class
