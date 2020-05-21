@@ -3,6 +3,7 @@ import pandas as pd
 import cv2
 from typing import Dict, List
 import json
+import re
 from pathlib import Path
 
 def get_config(config_path: str = 'config.json') -> Dict:
@@ -16,6 +17,14 @@ def get_config(config_path: str = 'config.json') -> Dict:
     """
     with open(config_path, 'r') as fp:
         config = json.load(fp)
+    required_config_options = [
+        'limbal_img_dir',
+        'bcd_dir',
+        'bcd_metadata'
+    ]
+    for opt in required_config_options:
+        if opt not in config.keys():
+            raise ValueError('Required config options missing: ' + opt)
     return config
 
 
@@ -82,7 +91,7 @@ def get_bcd_image(
         ValueError: Invalid slice id
 
     Returns:
-        image
+        cv2.image
     """
     config = get_config()
     img_dir = Path(config['bcd_dir'])
@@ -107,6 +116,104 @@ def get_bcd_image(
 
     return cv2.imread(img_path.as_posix(), cv2.IMREAD_GRAYSCALE)
 
-            
-            
 
+def is_subject_format(subject):
+    match = re.match(r'D\d+\sR\d+\s*', subject)
+    if match is None:
+        return False
+    return True
+
+
+def get_lsc_subjects():
+    config = get_config()
+    img_dir = Path(config['limbal_img_dir'])
+    subjects = []
+    for folder in img_dir.iterdir():
+        if is_subject_format(folder.name):
+            subjects.append(folder.name.split(' day')[0])
+    return subjects
+
+
+def get_lsc_image(
+    subject: str,
+    image_num: int = 1,
+    day: int = 9,
+    get_tile: bool = False,
+):
+    if not is_subject_format(subject):
+        raise ValueError(subject + ' subject not in pattern D# R#')
+
+    config = get_config()
+    img_dir = Path(config['limbal_img_dir'])
+    subject_dir = Path(
+        img_dir,
+        subject.strip() + ' day ' + str(day)
+    )
+    if not subject_dir.is_dir():
+        raise ValueError(
+            'Subject dir does not exist: '
+            + str(subject_dir)
+        )
+
+    if get_tile:
+        new_im_dir = Path(subject_dir, 'new')
+        if new_im_dir.is_dir():
+            img_path = Path(
+                new_im_dir,
+                'Image' + str(image_num) + '.tif'
+            )
+        else:
+            img_path = Path(
+                subject_dir,
+                'Image' + str(image_num) + '_dots.tif'
+            )
+    else:
+        img_path = Path(subject_dir, 'Image' + str(image_num) + '.jpg')
+    if img_path.is_file():
+        return cv2.imread(img_path.as_posix(), cv2.IMREAD_GRAYSCALE)
+    else:
+        print('Warning image not found:', img_path)
+        return None
+
+def find_image_nums_per_subject(subject, day = 9):
+    config = get_config()
+    img_dir = Path(config['limbal_img_dir'])
+    subject_dir = Path(
+        img_dir,
+        subject.strip() + ' day ' + str(day)
+    )
+    if not subject_dir.is_dir():
+        raise ValueError('Subject dir does not exist: ' + str(subject_dir))
+
+    image_nums = []
+    for item in subject_dir.glob('Image*.jpg'):
+        match = re.findall(r'\d+', item.name)
+        image_nums.append(int(match[0]))
+    return image_nums
+
+
+def get_all_lsc_images(
+    get_tile: bool = False,
+):
+    metadata = {
+        'image_num': [],
+        'subject': [],
+    }
+    images = []
+    subjects = get_lsc_subjects()
+
+    for subject in subjects:
+        for img_num in find_image_nums_per_subject(subject):
+            img = get_lsc_image(
+                subject=subject,
+                image_num=img_num,
+                get_tile=get_tile
+            )
+            if img is not None:
+                metadata['image_num'].append(img_num)
+                metadata['subject'].append(subject)
+                images.append(img)
+    metadata = pd.DataFrame.from_dict(metadata)
+    if metadata.shape[0] != len(images):
+        raise ValueError('Some images not loaded, metadata generated does not match loaded images')
+    return images, metadata
