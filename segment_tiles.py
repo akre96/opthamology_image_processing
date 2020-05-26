@@ -142,10 +142,15 @@ class TileSegmenter():
                 )
                 ax.add_patch(rect)
 
+            if self.n_tiles >= 5:
+                cols = 5
+            else:
+                cols = self.n_tiles
+            rows = int(np.ceil(self.n_tiles/5))
             fig, axes = plt.subplots(
-                ncols=5,
-                nrows=int(np.ceil(self.n_tiles/5)),
-                figsize=(5*3, 4*int(np.ceil(self.n_tiles/5)))
+                ncols=cols,
+                nrows=rows,
+                figsize=(cols*3, 4*rows)
             )
             for i, p in enumerate(patches):
                 axes.flatten()[i].imshow(p, cmap='gray')

@@ -43,7 +43,9 @@ def load_bcd_metadata(sheet_name: str = 'basal cell density'):
     Returns:
         pd.DataFrame -- cleaned dataframe of data
     """
-    md_path = get_config()['bcd_metadata']
+    config = get_config()
+    md_path = config['bcd_metadata']
+    ignore_key = 'bcd_ignore_subjects'
     metadata = pd.read_excel(
         md_path,
         sheet_name=sheet_name,
@@ -54,6 +56,10 @@ def load_bcd_metadata(sheet_name: str = 'basal cell density'):
         .str.replace(' ', '')
     metadata['clinical'] = metadata['clinical']\
         .str.replace(' ', '')
+    metadata['subject'] = metadata['study_number_id_eye'].str.split('-').str[0]
+    if ignore_key in config.keys() and len(config[ignore_key]):
+        print('removing subjects:', config[ignore_key])
+        metadata = metadata[~metadata.subject.isin(config[ignore_key])]
     return metadata
 
 def convert_id_to_folder_label(
