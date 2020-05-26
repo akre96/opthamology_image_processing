@@ -6,6 +6,11 @@ import json
 import re
 from pathlib import Path
 
+def get_tile_select_params(param_path: str = 'optimal_tile_params.json'):
+    with open(param_path, 'r') as fp:
+        params = json.load(fp)
+    return params
+
 def get_config(config_path: str = 'config.json') -> Dict:
     """ Loads local path configurations
 
@@ -110,11 +115,17 @@ def get_bcd_image(
 
         raise ValueError('Patient ID must be in: ' + ', '.join(patient_ids))
 
+    if int(slice_id) < 10:
+        slice_id = '0' + str(slice_id)
+
     img_path = Path(class_dir, patient_id, '-' + str(slice_id) + '.jpg')
     if not img_path.is_file():
         raise ValueError('Image slice does not exist: ' + str(img_path))
 
-    return cv2.imread(img_path.as_posix(), cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread(img_path.as_posix(), cv2.IMREAD_GRAYSCALE)
+    if img.shape != (384, 384):
+        print('Warning, image not 384x384 pixels as standard')
+    return img
 
 
 def is_subject_format(subject):

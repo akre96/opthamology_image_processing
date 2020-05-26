@@ -158,7 +158,6 @@ class TileSegmenter():
     def calc_edge_penalty(
         self,
         img,
-        sigma=2,
         dilate_disk_size: int = 5,
         mean_disk_size: int = 25,
     ) -> np.array:
@@ -176,7 +175,10 @@ class TileSegmenter():
         Returns:
             np.array -- array used to penalize edge areas
         """
-        dilated = dilation(canny(img, sigma=sigma), disk(dilate_disk_size))
+        dilated = dilation(
+            canny(img, sigma=self.canny_sigma),
+            disk(dilate_disk_size)
+        )
         smooth_edge = self.min_max_normalize(
             rank.mean(
                 dilated, selem=disk(mean_disk_size)
@@ -366,6 +368,7 @@ class TileSegmenter():
         """
         normed = (data - data.min())/(data.max() - data.min())
         normed = (normed - min_val) * scale
+        normed[np.isnan(normed)] = min_val
         return normed
 
     def get_top_xy(
