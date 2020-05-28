@@ -2,7 +2,8 @@
     "LSC": {
         "energy": 0.5,
         "contrast": 3,
-        "edge": -3
+        "edge": -3,
+        "n_tiles": 3,
     }
 
 }

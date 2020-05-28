@@ -60,6 +60,14 @@ def load_bcd_metadata(sheet_name: str = 'basal cell density'):
     if ignore_key in config.keys() and len(config[ignore_key]):
         print('removing subjects:', config[ignore_key])
         metadata = metadata[~metadata.subject.isin(config[ignore_key])]
+
+    if not metadata[metadata.isna()].empty:
+        subset = ['study_number_id_eye', 'clinical', 'subject']
+        print('Found nans, removing row if NaN in columns:', subset)
+        size_0 = metadata.shape[0]
+        metadata = metadata.dropna(subset=subset)
+        size_1 = metadata.shape[0]
+        print('Removed NaNs:', size_0 - size_1)
     return metadata
 
 def convert_id_to_folder_label(
