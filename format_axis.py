@@ -1,5 +1,6 @@
 """ Group of functions that make plots prettier
 
+Author: Samir Akre
 """
 from matplotlib.axis import Axis
 import seaborn as sns

@@ -1,3 +1,10 @@
+""" Load data related to Limbal Stem Cell or Basal Epithelial Cells
+
+This file contains a set of helper functions to consistently load and
+parse the data from the UCLA Opthamology group.
+
+Author: Samir Akre
+"""
 import numpy as np
 import pandas as pd
 import cv2
@@ -6,16 +13,29 @@ import json
 import re
 from pathlib import Path
 
+
 def get_tile_select_params(param_path: str = 'optimal_tile_params.json'):
+    """ Returns paramters for optimal tile selection
+    JSON object taken from 'optimal_tile_params.json', serves as
+    input to TileSegmenter configuration.
+
+    Keyword Arguments:
+        param_path {str} -- path (default: {'optimal_tile_params.json'})
+
+    Returns:
+        Dict -- params for BEC and LSC cell types
+    """
     with open(param_path, 'r') as fp:
         params = json.load(fp)
     return params
+
 
 def get_config(config_path: str = 'config.json') -> Dict:
     """ Loads local path configurations
 
     Keyword Arguments:
-        config_path {str} -- path to config json file (default: {'config.json'})
+        config_path {str} -- path to config json file
+            (default: {'config.json'})
 
     Returns:
         Dict -- loaded configurations
@@ -70,11 +90,12 @@ def load_bcd_metadata(sheet_name: str = 'basal cell density'):
         print('Removed NaNs:', size_0 - size_1)
     return metadata
 
+
 def convert_id_to_folder_label(
     study_num_eye: str,
     cc_scan: str
 ) -> List:
-    """ convert from pid-eye + scan-slice format to pid-eye-scan + slice 
+    """ convert from pid-eye + scan-slice format to pid-eye-scan + slice
 
     Arguments:
         study_num_eye {str} -- example: N1-OD-1
@@ -89,12 +110,11 @@ def convert_id_to_folder_label(
     return p_id, img_slice
 
 
-
 def get_bcd_image(
     img_class: str = None,
     patient_id: str = None,
     slice_id: int = 30,
-    output_color = cv2.IMREAD_GRAYSCALE,
+    output_color=cv2.IMREAD_GRAYSCALE,
 ) -> np.ndarray:
     """ read an image from BCD images
     Assumes file structure from downloaded zip file intact.
@@ -165,8 +185,28 @@ def get_lsc_image(
     image_num: int = 1,
     day: int = 9,
     get_tile: bool = False,
-    output_color = cv2.IMREAD_UNCHANGED,
+    output_color=cv2.IMREAD_UNCHANGED,
 ):
+    """ Get a single image from the Limbal Stem Cell data set
+
+    Arguments:
+        subject {str} -- Subject ID
+
+    Keyword Arguments:
+        image_num {int} -- Number of desired image (default: {1})
+        day {int} --  Day of sapmle (default: {9})
+        get_tile {bool} -- Set True to return hand tile instead of full
+            image (default: {False})
+        output_color {cv2.[image read type]} -- type to read image as
+            (default: {cv2.IMREAD_UNCHANGED})
+
+    Raises:
+        ValueError: Subject pattern incorrect (D# R#)
+        ValueError: Subject  + day directory does not exist
+
+    Returns:
+        cv2 image -- image read with type 'output_color'
+    """
     if not is_subject_format(subject):
         raise ValueError(subject + ' subject not in pattern D# R#')
 
@@ -202,7 +242,25 @@ def get_lsc_image(
         print('Warning image not found:', img_path)
         return None
 
-def find_image_nums_per_subject(subject, day = 9):
+
+def find_image_nums_per_subject(
+    subject: str,
+    day: int = 9,
+):
+    """ Parses LSC data for all image numbers per subject
+
+    Arguments:
+        subject {str} -- Subject ID
+
+    Keyword Arguments:
+        day {int} -- Sample Day (default: {9})
+
+    Raises:
+        ValueError: Subject + day directory doesn't exist
+
+    Returns:
+        List[int] -- List of image numbers as integers
+    """
     config = get_config()
     img_dir = Path(config['limbal_img_dir'])
     subject_dir = Path(
@@ -221,8 +279,24 @@ def find_image_nums_per_subject(subject, day = 9):
 
 def get_all_lsc_images(
     get_tile: bool = False,
-    output_color = cv2.IMREAD_UNCHANGED,
+    output_color=cv2.IMREAD_UNCHANGED,
 ):
+    """ Parse LSC data and return all images from all subjects
+
+    Keyword Arguments:
+        get_tile {bool} -- If True, return hand selected tiles
+            instead of full slide image (default: {False})
+        output_color {cv2 image type} -- output type of image/tile
+            (default: {cv2.IMREAD_UNCHANGED})
+
+    Raises:
+        ValueError: Images don't match parsed metadata
+
+    Returns:
+        images {List} -- List of found images
+        metadata {pd.DataFrame} -- Pandas dataframe of subject
+            information about returned images
+    """
     metadata = {
         'image_num': [],
         'subject': [],
@@ -244,5 +318,10 @@ def get_all_lsc_images(
                 images.append(img)
     metadata = pd.DataFrame.from_dict(metadata)
     if metadata.shape[0] != len(images):
-        raise ValueError('Some images not loaded, metadata generated does not match loaded images')
+        raise ValueError(
+            '''
+            Some images not loaded,
+            metadata generated does not match loaded images
+            '''
+        )
     return images, metadata

@@ -1,6 +1,22 @@
 """ Get best tiles to use for cell density counting
-Usage: Import function `segment_tiles` and use in pipeline
+Usage:
+    Import TileSegmenter class. Use dataloader from load_data.py to
+    load optimal tile selection parameters for the type of image being
+    analyzed.
 
+# Example loading Limbal Stem cell parameters:
+```
+import load_data as ld
+import segment_tiles as st
+
+tile_select_params = ld.get_tile_select_params()['LSC']
+segmenter = st.TileSegmenter(
+    **tile_select_params,
+    glcm_n_samples=500,
+    plot_patches=True,
+    show_tqdm=True,
+)
+```
 Author: Samir Akre
 """
 
@@ -31,6 +47,32 @@ class TileSegmenter():
         rand_seed: int = 0,
         show_tqdm: bool = True,
     ):
+        """ Initialize Tile Segmenter
+
+        Arguments:
+            tile_size {int} -- Size of tile, tiles are
+                size (tile_size, tile_size)
+
+        Keyword Arguments:
+            n_tiles {int} -- Number of top tiles to return (default: {5})
+            min_tile_dist {float} -- Minimum euclidean distance between
+                centroid of two tiles (default: {200})
+            glcm_n_samples {int} -- Number of points to sample and calculate
+                properties as. Kind of like a resolution. (default: {5000})
+            edge_weight {float} -- Amount to weigh edges detected in selecting
+                optimal tiles (default: {-5.0})
+            contrast_weight {float} -- Amount to weigh contrast GLCM property
+                in selecting optimal tiles (default: {1.5})
+            energy_weight {float} -- Amount to weigh energy GLCM property in
+                selecting optimal tiles (default: {1.0})
+            canny_sigma {float} -- Sigma value for canny filter used in edge
+                detection (default: {2.0})
+            plot_patches {bool} -- Set True to visualize results in matplotlib
+                (default: {False})
+            rand_seed {int} -- Random seed for point selection (default: {0})
+            show_tqdm {bool} -- Set False to hide progressbars for internal
+                processes (default: {True})
+        """
         self.tile_size = tile_size
         self.half_ts = int(round(tile_size/2))
         self.n_tiles = n_tiles
@@ -61,8 +103,10 @@ class TileSegmenter():
                 (default: {200})
             glcm_n_samples {int} -- number of points to sample when calculating
                 glcm features (default: {5000})
-            edge_weight {float} -- amount to weight blobs found (default: {-5.0})
-            contrast_weight {float} -- amount to weight contrast (default: {1.5})
+            edge_weight {float} -- amount to weight blobs found
+                (default: {-5.0})
+            contrast_weight {float} -- amount to weight contrast
+                (default: {1.5})
             energy_weight {float} -- amount to weight energy (default: {1.0})
             canny_sigma {float} -- Sigma parameter of canny filter for edge
                 detection penalization (default: {2.0})
@@ -99,7 +143,7 @@ class TileSegmenter():
             + self.contrast_weight * norm_contrast \
             + self.energy_weight * norm_energy
 
-        # Convolution over summed features to get attention map        
+        # Convolution over summed features to get attention map
         conv = self.quick_conv_sum(
             sum_mat,
             xys,
@@ -160,8 +204,11 @@ class TileSegmenter():
             )
             for i, p in enumerate(patches):
                 axes.flatten()[i].imshow(p, cmap='gray')
-                axes.flatten()[i].set_title('Rank: ' + str(i) + ' ' + ec[i], fontsize=15)
-            
+                axes.flatten()[i].set_title(
+                    'Rank: ' + str(i) + ' ' + ec[i],
+                    fontsize=15
+                )
+
             plt.show()
 
         return patches
@@ -211,8 +258,10 @@ class TileSegmenter():
         patches = []
         for x, y in centers:
             patches.append(
-                img[y-self.half_ts:y+self.half_ts,
-                x-self.half_ts:x+self.half_ts]
+                img[
+                    y-self.half_ts:y+self.half_ts,
+                    x-self.half_ts:x+self.half_ts
+                ]
             )
         return patches
 
@@ -287,10 +336,11 @@ class TileSegmenter():
         img: np.array,
         props: List[str] = ['contrast', 'energy'],
     ) -> List[np.array]:
-        """ Create matrices with values from GLCM greycooccurence matrix over tiles
-        sub samples `n_samples` points and calculates GLCM values from `props` list
-        for tiles of shape (tile_size, tile_size). Returns numpy matrices of same
-        shape as image one per propert, in order of `props` list.
+        """ Create matrices with values from GLCM greycooccurence matrix over
+        tiles sub samples `n_samples` points and calculates GLCM values
+        from `props` list for tiles of shape (tile_size, tile_size).
+        Returns numpy matrices of same shape as image one per propert,
+        in order of `props` list.
         Arguments:
             img {np.array} -- Input image, must be grayscale
             n_samples {int} -- Number of points to subsample from/tiles to use
@@ -328,8 +378,8 @@ class TileSegmenter():
         img_shape: Tuple,
     ) -> List:
         """ Get a list of random x,y coordinates in the image excluding edges
-        A point is considered an edge if a tile centered at it would fall off the
-        image.
+        A point is considered an edge if a tile centered at it would fall
+        off the image.
 
         Arguments:
             img_shape {Tuple} -- (height, width), value from np.array.shape
