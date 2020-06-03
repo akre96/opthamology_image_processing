@@ -94,6 +94,7 @@ def get_bcd_image(
     img_class: str = None,
     patient_id: str = None,
     slice_id: int = 30,
+    output_color = cv2.IMREAD_GRAYSCALE,
 ) -> np.ndarray:
     """ read an image from BCD images
     Assumes file structure from downloaded zip file intact.
@@ -136,7 +137,7 @@ def get_bcd_image(
     if not img_path.is_file():
         raise ValueError('Image slice does not exist: ' + str(img_path))
 
-    img = cv2.imread(img_path.as_posix(), cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread(img_path.as_posix(), output_color)
     if img.shape != (384, 384):
         print('Warning, image not 384x384 pixels as standard')
     return img
@@ -164,6 +165,7 @@ def get_lsc_image(
     image_num: int = 1,
     day: int = 9,
     get_tile: bool = False,
+    output_color = cv2.IMREAD_UNCHANGED,
 ):
     if not is_subject_format(subject):
         raise ValueError(subject + ' subject not in pattern D# R#')
@@ -195,7 +197,7 @@ def get_lsc_image(
     else:
         img_path = Path(subject_dir, 'Image' + str(image_num) + '.jpg')
     if img_path.is_file():
-        return cv2.imread(img_path.as_posix(), cv2.IMREAD_GRAYSCALE)
+        return cv2.imread(img_path.as_posix(), output_color)
     else:
         print('Warning image not found:', img_path)
         return None
@@ -219,6 +221,7 @@ def find_image_nums_per_subject(subject, day = 9):
 
 def get_all_lsc_images(
     get_tile: bool = False,
+    output_color = cv2.IMREAD_UNCHANGED,
 ):
     metadata = {
         'image_num': [],
@@ -232,7 +235,8 @@ def get_all_lsc_images(
             img = get_lsc_image(
                 subject=subject,
                 image_num=img_num,
-                get_tile=get_tile
+                get_tile=get_tile,
+                output_color=output_color
             )
             if img is not None:
                 metadata['image_num'].append(img_num)

@@ -13,6 +13,7 @@ from skimage.filters import rank
 from skimage.morphology import dilation, disk
 import matplotlib.pyplot as plt
 from matplotlib import patches as Patch
+import cv2
 
 
 class TileSegmenter():
@@ -70,15 +71,20 @@ class TileSegmenter():
         Returns:
             List -- A list of `n_tiles` images of size (tile_size, tile_size)
         """
+        if len(img.shape) == 3:
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        else:
+            gray = img
+
         # Calculate gray level features for a subset of tiles
         [contrast_mat, energy_mat], xys = self.get_greycoprop_matrices(
-            img,
+            gray,
             props=['contrast', 'energy'],
         )
 
         # Find edges using canny filter
         edge_mat = self.calc_edge_penalty(
-            img,
+            gray,
             dilate_disk_size=5,
             mean_disk_size=25
         )
