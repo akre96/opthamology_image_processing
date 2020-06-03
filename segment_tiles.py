@@ -4,8 +4,19 @@ Usage:
     load optimal tile selection parameters for the type of image being
     analyzed.
 
+    Alternatively this file can be called via command line. Input image
+    is segmented with parameters according to input cell type. Output
+    tiles are saved to specified directory.
+
+# Example script call:
+python segment_tiles.py Mild/12-od-2/-33.jpg \
+    -t BEC \
+    -o test_output \
+    -p optimal_tile_params.json \
+
+
+
 # Example loading Limbal Stem cell parameters:
-```
 import load_data as ld
 import segment_tiles as st
 
@@ -16,10 +27,11 @@ segmenter = st.TileSegmenter(
     plot_patches=True,
     show_tqdm=True,
 )
-```
+
 Author: Samir Akre
 """
 
+from pathlib import Path
 import numpy as np
 from scipy.spatial.distance import cdist
 from typing import List, Tuple
@@ -30,6 +42,8 @@ from skimage.morphology import dilation, disk
 import matplotlib.pyplot as plt
 from matplotlib import patches as Patch
 import cv2
+import argparse
+import load_data as ld
 
 
 class TileSegmenter():
@@ -458,3 +472,71 @@ class TileSegmenter():
             if len(xys) == self.n_tiles:
                 break
         return xys
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input_image', type=str)
+    parser.add_argument('-t', '--image-type', dest='image_type', type=str)
+    parser.add_argument(
+        '-o',
+        '--output-dir',
+        dest='output_dir',
+        type=str,
+        default='./'
+    )
+    parser.add_argument(
+        '-p',
+        '--params',
+        dest='param_file',
+        type=str,
+        default='./optimal_tile_params.json',
+        help='Tile selection parameters JSON file'
+    )
+    parser.add_argument(
+        '-s',
+        '--show-plots',
+        dest='show_plots',
+        action='store_true',
+        help='Set flag to show plots and attention map'
+    )
+    args = parser.parse_args()
+
+    p_f = Path(args.param_file)
+    if not p_f.is_file():
+        raise ValueError('Param File not found ' + str(p_f))
+
+    img_path = Path(args.input_image)
+    if not img_path.is_file():
+        raise ValueError('Image File not found ' + str(img_path))
+
+    params = ld.get_tile_select_params(args.param_file)
+
+    if args.image_type not in params.keys():
+        raise ValueError(
+            '''
+            Invalid image type --
+            Image type must be in the tile parameter file keys
+            '''
+        )
+
+    segmenter = TileSegmenter(
+        **params[args.image_type],
+        plot_patches=args.show_plots
+    )
+
+    img = cv2.imread(args.input_image)
+    ext = img_path.name.split('.')[-1]
+
+    tiles = segmenter.segment_tiles(img)
+    output_dir = Path(args.output_dir)
+    for i, tile in enumerate(tiles):
+        tile_name = '.'.join(img_path.name.split('.')[:-1])\
+            + '_tile-' + str(i) + '.'\
+            + ext
+
+        tile_file = Path(
+            output_dir,
+            tile_name
+        )
+        cv2.imwrite(str(tile_file), tile)
