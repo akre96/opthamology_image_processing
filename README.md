@@ -1,5 +1,5 @@
 # Limbal and Basal Stem Cell Counting
-By: Samir Akre and Henry Zheng
+By: Samir Akre and Henry Zheng   
 _Python Version 3.7.6_
 
 ## Purpose
