@@ -18,7 +18,8 @@ The goal of this repository is to aide in the cell counting of images taken on c
 ### Python Notebooks
 - __find_tiles_basal_cell_example.ipynb__: Notebook to serve as an example of finging optimal tiles on basal epithelial cell images using the TileSegmenter from `segment_tiles.py`
 - __find_tiles_basal_cell_example.ipynb__: Notebook to serve as an example of finging optimal tiles on limbal stem cell slide images using the TileSegmenter from `segment_tiles.py`
+- __get_LSC_tile_params.ipynb__: Performs a grid search over paramaters for tile segmentation and logs GLCM properties of resultant tiles for comparison to hand selected tiles
 
 
 ### Folders
-- __lsc_gridsearch_tile_glcm/__: Directory containing tables which document the GLCM properties of tiles selected with different parameters fed to TileSegmenter from `segment_tiles.py`
+- __lsc_gridsearch_tile_glcm/__: Directory containing tables which document the GLCM properties of tiles selected with different parameters fed to TileSegmenter from `segment_tiles.py`. Generated in notebook `get_LSC_tile_params.ipynb`
