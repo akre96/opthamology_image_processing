@@ -3,9 +3,6 @@ from pathlib import Path
 import pandas as pd
 import cv2
 import numpy as np
-from PIL import Image
-from PIL.TiffTags import TAGS
-from typing import Dict
 
 from radfuncs import radfeatures
 import basal_pipeline as BEC
@@ -15,7 +12,9 @@ import load_data
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Segment Tiles and Count Cells"
+    )
     parser.add_argument('input_image', type=str)
     parser.add_argument('-t', '--image-type', dest='image_type', type=str)
     parser.add_argument(
@@ -35,15 +34,23 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
 
+    # Catch invalid image type
+    if args.image_type not in ['LSC', 'BEC']:
+        raise ValueError('Invalid Image Type, must be BEC or LSC')
+
+    # Catch invalid parameter file
     p_f = Path(args.param_file)
     if not p_f.is_file():
         raise ValueError('Param File not found ' + str(p_f))
 
+    # Catch invalid image path
     img_path = Path(args.input_image)
     if not img_path.is_file():
         raise ValueError('Image File not found ' + str(img_path))
+
     img = cv2.imread(args.input_image, cv2.IMREAD_UNCHANGED)
 
+    # Segment tiles for counting
     tile_seg_params = load_data.get_tile_select_params(
         args.param_file
     )[args.image_type]
@@ -52,6 +59,8 @@ if __name__ == '__main__':
         **tile_seg_params,
     )
     tiles = segmenter.segment_tiles(img)
+
+    # Basal Epithelial Cell Pipeline
     if args.image_type == 'BEC':
         features = pd.DataFrame()
         for i, tile in enumerate(tiles):
@@ -63,6 +72,8 @@ if __name__ == '__main__':
         density = BEC.predictDensity(features)
         print('\n', ' -- Density Report -- ')
         print('Density:', density.values.tolist()[0])
+
+    # Basal Epithelial Cell Pipeline
     elif args.image_type == 'LSC':
         scale_factor = 147.05893166097917 ** 2
         tile_area = tile_seg_params['tile_size'] ** 2
@@ -81,4 +92,6 @@ if __name__ == '__main__':
         print('Std Density (cells/mm^2):', densities_arr.std())
 
     else:
-        print('Image type, -t flag must be set to BEC')
+        print('Image type, -t flag must be set to BEC or LSC')
+else:
+    print('Importing not supported, run with __name__ == "__main__"')
