@@ -16,11 +16,30 @@ from scipy.spatial import distance
 
 
 def makeMask(imgmat,yellow=165):
+    """ Generate mask according to HSV thresholding
+
+    Arguments:
+        imgmat: the array of the image to create a threshold mask from
+        yellow: saturation value (S in HSV) around which a color range is to be captured 
+            as threshold. A +15/-15 boundary is used centered at yellow 
+    
+    Return: a mask with 1 indicating desired image and 0 in rejected regions. To be used 
+        into generateCentroid
+    """
     hsv = cv2.cvtColor(imgmat, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, (yellow-15, 10, 0), (yellow+15, 30, 255))//255
     return mask
 
 def centroidFromMask(label_image, sizeCutoff=20):
+    """ Identify centroids of cells 
+
+    Arguments:
+        label_image: image with regions labeled
+        sizeCutoff: the size of salient regions, which eliminates false positives 
+            that are smaller than cutoff
+    
+    Return: list of centroids
+    """
     sizes=[]
     for i in np.unique(label_image):
         sizes.append(sum(sum(label_image==i)))
@@ -40,6 +59,9 @@ def centroidFromMask(label_image, sizeCutoff=20):
     return centroids
 
 def centroidDists(predictedarr,trutharr):
+    """ Used for tuning color and size cutoff hyperparameters. \
+    For internal use
+    """
     distances=np.zeros((len(predictedarr),len(trutharr)))
     for i in range(len(predictedarr)):
         for j in range(len(trutharr)):
@@ -60,6 +82,13 @@ def pipeline(imgpath,yellow=30,sizeCutoff=20): #only used for hyperparameter tun
     return avgError
 
 def generateCentroid(imgmat,yellow,sizeCutoff):
+    """ General pipeline for starting with images and returning predicted cell centers
+    
+    Arguments:
+        imgmat: an array (NxMx3) of the patch to be predicted
+        yellow: the color threshold hyperparameter. Set to default value of 165
+        sizeCutoff: the cell masl size hyperparameter. Set to default value of 20
+    """
     mask=makeMask(imgmat,yellow)
     label_image = label(mask)
     centroids=centroidFromMask(label_image,sizeCutoff)
