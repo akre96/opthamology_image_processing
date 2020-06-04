@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 import pandas as pd
 import cv2
 
@@ -29,6 +30,13 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
 
+    p_f = Path(args.param_file)
+    if not p_f.is_file():
+        raise ValueError('Param File not found ' + str(p_f))
+
+    img_path = Path(args.input_image)
+    if not img_path.is_file():
+        raise ValueError('Image File not found ' + str(img_path))
     img = cv2.imread(args.input_image, cv2.IMREAD_UNCHANGED)
 
     tile_seg_params = load_data.get_tile_select_params(
