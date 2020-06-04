@@ -39,6 +39,7 @@ from tqdm import tqdm
 from skimage.feature import greycomatrix, greycoprops, canny
 from skimage.filters import rank
 from skimage.morphology import dilation, disk
+from skimage.util import img_as_ubyte
 import matplotlib.pyplot as plt
 from matplotlib import patches as Patch
 import cv2
@@ -253,7 +254,7 @@ class TileSegmenter():
         )
         smooth_edge = self.min_max_normalize(
             rank.mean(
-                dilated, selem=disk(mean_disk_size)
+                img_as_ubyte(dilated), selem=disk(mean_disk_size)
             )
         )
         return smooth_edge
