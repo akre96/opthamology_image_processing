@@ -11,13 +11,13 @@ The goal of this repository is to aide in the cell counting of images taken on c
 - __config.json__: File to guide processing of images and configure for different machines, example version in repository. Modify to fit local machine.
 - __optimal_tile_params.json__: File used to set best parameters for searching for tiles used in cell counting. Already optimized. Modify if desired.
 - __regressiondata.json__: Parameters for a pre-trained linear regression model. Used in conjunction with predictDensity. Retraining on a new training dataset can be performed using trainModel. 
-- __pcaparams.csv__: Parameters for PCA transformation . Used in conjunction with predictDensity. Retraining on a new training dataset can be performed using trainModel. 
+- __pcaparams.csv__: Parameters for PCA transformation. Used in conjunction with predictDensity. Retraining on a new training dataset can be performed using trainModel. 
 
 ### Python Files
 - __segment_tiles.py__: File containing class used to return best tiles for cell counting from an image. Can be run from command line.
 - __load_data.py__: File containing helper functions to load data as given reproducibly
 - __format_axis.py__: File containing functions used to make figures pretty
--__basal_pipe.py__: File containing end-to-end operation of generating basal stem cell density predictions from provided whole images
+- __basal_pipe.py__: File containing end-to-end operation of generating basal stem cell density predictions from provided whole images
 
 ### Python Notebooks
 - __find_tiles_basal_cell_example.ipynb__: Notebook to serve as an example of finging optimal tiles on basal epithelial cell images using the TileSegmenter from `segment_tiles.py`
