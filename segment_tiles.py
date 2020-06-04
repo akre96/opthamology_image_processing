@@ -34,7 +34,7 @@ Author: Samir Akre
 from pathlib import Path
 import numpy as np
 from scipy.spatial.distance import cdist
-from typing import List, Tuple
+from typing import List, Tuple, Any
 from tqdm import tqdm
 from skimage.feature import greycomatrix, greycoprops, canny
 from skimage.filters import rank
@@ -99,7 +99,7 @@ class TileSegmenter():
         self.plot_patches = plot_patches
         self.show_tqdm = show_tqdm
         self.rand_seed = rand_seed
-        self.xys = None
+        self.xys: Any = None
 
     def segment_tiles(
         self,
@@ -349,7 +349,7 @@ class TileSegmenter():
         self,
         img: np.array,
         props: List[str] = ['contrast', 'energy'],
-    ) -> List[np.array]:
+    ) -> Tuple[List, List]:
         """ Create matrices with values from GLCM greycooccurence matrix over
         tiles sub samples `n_samples` points and calculates GLCM values
         from `props` list for tiles of shape (tile_size, tile_size).
@@ -519,11 +519,9 @@ if __name__ == '__main__':
             Image type must be in the tile parameter file keys
             '''
         )
-
-    segmenter = TileSegmenter(
-        **params[args.image_type],
-        plot_patches=args.show_plots
-    )
+    tile_params = params[args.image_type]
+    tile_params['plot_patches'] = args.show_plots
+    segmenter = TileSegmenter(**params[args.image_type])
 
     img = cv2.imread(args.input_image)
     ext = img_path.name.split('.')[-1]

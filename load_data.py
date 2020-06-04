@@ -8,7 +8,7 @@ Author: Samir Akre
 import numpy as np
 import pandas as pd
 import cv2
-from typing import Dict, List
+from typing import Dict, Tuple
 import json
 import re
 from pathlib import Path
@@ -66,7 +66,7 @@ def load_bcd_metadata(sheet_name: str = 'basal cell density'):
     config = get_config()
     md_path = config['bcd_metadata']
     ignore_key = 'bcd_ignore_subjects'
-    metadata = pd.read_excel(
+    metadata: pd.DataFrame = pd.read_excel(
         md_path,
         sheet_name=sheet_name,
         header=1,
@@ -94,7 +94,7 @@ def load_bcd_metadata(sheet_name: str = 'basal cell density'):
 def convert_id_to_folder_label(
     study_num_eye: str,
     cc_scan: str
-) -> List:
+) -> Tuple[str, str]:
     """ convert from pid-eye + scan-slice format to pid-eye-scan + slice
 
     Arguments:
@@ -297,7 +297,7 @@ def get_all_lsc_images(
         metadata {pd.DataFrame} -- Pandas dataframe of subject
             information about returned images
     """
-    metadata = {
+    metadata: Dict = {
         'image_num': [],
         'subject': [],
     }
@@ -316,12 +316,12 @@ def get_all_lsc_images(
                 metadata['image_num'].append(img_num)
                 metadata['subject'].append(subject)
                 images.append(img)
-    metadata = pd.DataFrame.from_dict(metadata)
-    if metadata.shape[0] != len(images):
+    metadata_df = pd.DataFrame.from_dict(metadata)
+    if metadata_df.shape[0] != len(images):
         raise ValueError(
             '''
             Some images not loaded,
             metadata generated does not match loaded images
             '''
         )
-    return images, metadata
+    return images, metadata_df
