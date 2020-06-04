@@ -1,12 +1,33 @@
+""" Calculate Cell density on Basal Epithelial Cell or Limbal Stem Cell images
+
+## Command Line Usage:
+python calculate_cell_density.py \
+    [path to image] \
+    -t [BSC | LSC]
+
+## Options
+To use custom parameters for tile segmentation, create a 
+parameter JSON file in the style of 'optimal_tile_params.json'
+and set `-p` option with path to that new params file.
+
+Set `-s` flag to show plots of tile segmentation results
+
+Author:
+Samir Akre
+"""
+
 import argparse
 from pathlib import Path
 import pandas as pd
 import cv2
 import numpy as np
 
+# Henry's parts
 from radfuncs import radfeatures
 import basal_pipeline as BEC
 import centroidfuncs as LSC
+
+# Samir's parts
 import segment_tiles
 import load_data
 
@@ -51,15 +72,19 @@ if __name__ == '__main__':
     img = cv2.imread(args.input_image, cv2.IMREAD_UNCHANGED)
 
     # Segment tiles for counting
+    print(' -- Segmenting Tiles -- ')
     tile_seg_params = load_data.get_tile_select_params(
         args.param_file
     )[args.image_type]
     tile_seg_params['plot_patches'] = args.show_plots
+    if args.show_plots:
+        print('Plotting enabled... Close plots to continue to cell counting')
     segmenter = segment_tiles.TileSegmenter(
         **tile_seg_params,
     )
     tiles = segmenter.segment_tiles(img)
 
+    print('\n', ' -- Counting Cells -- ')
     # Basal Epithelial Cell Pipeline
     if args.image_type == 'BEC':
         features = pd.DataFrame()
