@@ -16,32 +16,12 @@ from scipy.spatial import distance
 
 
 def makeMask(imgmat,yellow=165):
-    """ Generate mask according to HSV thresholding
-
-    Arguments:
-        imgmat: the array of the image to create a threshold mask from
-        yellow: saturation value (S in HSV) around which a color range is to be captured 
-            as threshold. A +15/-15 boundary is used centered at yellow 
-    
-    Return: a mask with 1 indicating desired image and 0 in rejected regions. To be used 
-        into generateCentroid
-    """
     img = sitk.GetImageFromArray(imgmat)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, (yellow-15, 10, 0), (yellow+15, 30, 255))//255
     return mask
 
 def centroidFromMask(label_image, sizeCutoff=20):
-    """ Identify centroids of cells 
-
-    Arguments:
-        imgmat: the array of the image to create a threshold mask from
-        yellow: saturation value (S in HSV) around which a color range is to be captured 
-            as threshold. A +15/-15 boundary is used centered at yellow 
-    
-    Return: a mask with 1 indicating desired image and 0 in rejected regions. To be used 
-        into generateCentroid
-    """
     sizes=[]
     for i in np.unique(label_image):
         sizes.append(sum(sum(label_image==i)))
