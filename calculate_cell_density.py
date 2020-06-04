@@ -13,30 +13,6 @@ import centroidfuncs as LSC
 import segment_tiles
 import load_data
 
-def get_image_scale(img_path: Path) -> Dict:
-    """ Get width, height in microns of image
-
-    Args:
-        img_path (Path): Path to tiff image
-
-    Returns:
-        Dict - image resolution properties
-    """
-    with Image.open(img_path) as img:
-        meta_dict = {TAGS[key]: img.tag[key] for key in img.tag.keys()}
-    xres = meta_dict['XResolution']
-    yres = meta_dict['YResolution']
-    scalex = xres[0][0]/xres[0][1]
-    scaley = yres[0][0]/yres[0][1]
-
-    img_props = {
-        'scaled_x': scalex,
-        'scaled_y': scaley,
-        'length': meta_dict['ImageLength'][0],
-        'width': meta_dict['ImageWidth'][0],
-    }
-    return img_props
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
