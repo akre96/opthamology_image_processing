@@ -16,8 +16,7 @@ from scipy.spatial import distance
 
 
 def makeMask(imgmat,yellow=165):
-    img = sitk.GetImageFromArray(imgmat)
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(imgmat, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, (yellow-15, 10, 0), (yellow+15, 30, 255))//255
     return mask
 

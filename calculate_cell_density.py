@@ -51,15 +51,19 @@ if __name__ == '__main__':
     img = cv2.imread(args.input_image, cv2.IMREAD_UNCHANGED)
 
     # Segment tiles for counting
+    print(' -- Segmenting Tiles -- ')
     tile_seg_params = load_data.get_tile_select_params(
         args.param_file
     )[args.image_type]
     tile_seg_params['plot_patches'] = args.show_plots
+    if args.show_plots:
+        print('Plotting enabled... Close plots to continue to cell counting')
     segmenter = segment_tiles.TileSegmenter(
         **tile_seg_params,
     )
     tiles = segmenter.segment_tiles(img)
 
+    print('\n', ' -- Counting Cells -- ')
     # Basal Epithelial Cell Pipeline
     if args.image_type == 'BEC':
         features = pd.DataFrame()
