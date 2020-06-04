@@ -1,12 +1,33 @@
+""" Calculate Cell density on Basal Epithelial Cell or Limbal Stem Cell images
+
+## Command Line Usage:
+python calculate_cell_density.py \
+    [path to image] \
+    -t [BSC | LSC]
+
+## Options
+To use custom parameters for tile segmentation, create a 
+parameter JSON file in the style of 'optimal_tile_params.json'
+and set `-p` option with path to that new params file.
+
+Set `-s` flag to show plots of tile segmentation results
+
+Author:
+Samir Akre
+"""
+
 import argparse
 from pathlib import Path
 import pandas as pd
 import cv2
 import numpy as np
 
+# Henry's parts
 from radfuncs import radfeatures
 import basal_pipeline as BEC
 import centroidfuncs as LSC
+
+# Samir's parts
 import segment_tiles
 import load_data
 
