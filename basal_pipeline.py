@@ -19,6 +19,17 @@ import sampledata as data
 
 
 def createFeatures(label):
+    """ Generates underlying features to be used for cell density prediction
+
+    Arguments:
+        label -- the cass that the image upon which features are being
+            generated is classified under, eg. disease severity. If not known,
+            enter "0".
+
+    Returns:
+        features -- calculated texture features. Also saved as file "features.csv"
+            in current directory.
+    """
     tile_select_params = ld.get_tile_select_params()['BEC']
     segmenter = st.TileSegmenter(
         **tile_select_params,

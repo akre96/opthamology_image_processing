@@ -3,6 +3,15 @@
 Created on Sat May  2 21:29:20 2020
 
 @author: hwz62
+
+This code generates predicted centroids of limbal stem cells
+using a color thresholding method. Calls centroidfuncs which
+contains helper functions. This pipeline is intended for
+testing of hyperparmaeters and performance evaluation and
+assumes gold standard cell location annotations.
+
+Input iamge files should be placed in ~/img. Gold standard
+cell locations files should be in ~/xy as csv.
 """
 
 import os
