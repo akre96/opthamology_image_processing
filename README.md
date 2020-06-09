@@ -20,10 +20,10 @@ The goal of this repository is to aide in the cell counting of images taken on c
 - __basal_pipe.py__: File containing end-to-end operation of generating basal stem cell density predictions from provided whole images
 
 ### Python Notebooks
-- __find_tiles_basal_cell_example.ipynb__: Notebook to serve as an example of finging optimal tiles on basal epithelial cell images using the TileSegmenter from `segment_tiles.py`
-- __find_tiles_basal_cell_example.ipynb__: Notebook to serve as an example of finging optimal tiles on limbal stem cell slide images using the TileSegmenter from `segment_tiles.py`
+- __find_tiles_basal_cell_example.ipynb__: Notebook to serve as an example of finding optimal tiles on basal epithelial cell images using the TileSegmenter from `segment_tiles.py`
+- __find_tiles_basal_cell_example.ipynb__: Notebook to serve as an example of finding optimal tiles on limbal stem cell slide images using the TileSegmenter from `segment_tiles.py`
 - __get_LSC_tile_params.ipynb__: Performs a grid search over paramaters for tile segmentation and logs GLCM properties of resultant tiles for comparison to hand selected tiles
-- __count_cells_bcd.ipynb__: Attempts to count BEC cells using otsu thresholding
+- __count_cells_bcd.ipynb__: Attempts to count BEC cells using Otsu thresholding
 
 
 
