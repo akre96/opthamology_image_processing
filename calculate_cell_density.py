@@ -80,7 +80,7 @@ if __name__ == '__main__':
     if args.show_plots:
         print('Plotting enabled... Close plots to continue to cell counting')
     segmenter = segment_tiles.TileSegmenter(
-        **tile_seg_params,
+        **tile_seg_params
     )
     tiles = segmenter.segment_tiles(img)
 
