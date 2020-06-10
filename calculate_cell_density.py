@@ -98,8 +98,9 @@ if __name__ == '__main__':
         print('\n', ' -- Density Report -- ')
         print('Density:', density.values.tolist()[0])
 
-    # Basal Epithelial Cell Pipeline
+    # Limbal Stem Cell Pipeline
     elif args.image_type == 'LSC':
+        # Scale factor taken from images provided, represents micron^2/pixel
         scale_factor = 147.05893166097917 ** 2
         tile_area = tile_seg_params['tile_size'] ** 2
 
