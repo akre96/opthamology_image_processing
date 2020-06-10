@@ -102,19 +102,19 @@ def trainModel(features, densities_true):
                'intercept': intercept,
                'r_value': r_value,
                'p-value': p_value}
-    with open('regressiondata.json', 'w') as json_file:
+    with open('config/regressiondata.json', 'w') as json_file:
         json.dump(jsonout, json_file)
-    np.savetxt("pcaparams.csv", pca_result.components_, delimiter=",")
+    np.savetxt("config/pcaparams.csv", pca_result.components_, delimiter=",")
     return slope, intercept
 
 
 def predictDensity(features):
-    with open('regressiondata.json') as f:
+    with open('config/regressiondata.json') as f:
         reg=json.load(f)
     Y = list(features['label'])
     X = features.drop(['label'], axis=1)
     X_norm = StandardScaler().fit_transform(X)
-    eigenvectors = np.loadtxt(open("pcaparams.csv", "rb"), delimiter=",")
+    eigenvectors = np.loadtxt(open("config/pcaparams.csv", "rb"), delimiter=",")
     features_tf = X@eigenvectors[0,:]
     pred_density=reg['slope']*features_tf+reg['intercept']
     return pred_density
