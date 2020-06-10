@@ -23,7 +23,7 @@ python calculate_cell_density.py [path_to_input_image] \
 2. Run the `segment_tiles.py` file
 ```bash
 python segment_tiles.py [path_to_input_image] \
-    -t [cell_type (can be either BEC or LSC)]
+    -t [cell_type (can be either BEC or LSC)] \
     -o [path_to_output_directory]
 ```
 - Set the `-s` flag to show tile segmentation results
