@@ -1,5 +1,13 @@
+# Virtual environment
 venv
+
+# Cache
 __pycache__
-.vscode
 .pytest_cache
+.mypy_cache
+
+# Text editor environment
+.vscode
+
+# Notebook checkpoints
 .ipynb_checkpoints

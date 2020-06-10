@@ -23,13 +23,13 @@ import cv2
 import numpy as np
 
 # Henry's parts
-from radfuncs import radfeatures
-import basal_pipeline as BEC
-import centroidfuncs as LSC
+from src.radfuncs import radfeatures
+import src.basal_pipeline as BEC
+import src.centroidfuncs as LSC
 
 # Samir's parts
 import segment_tiles
-import load_data
+import src.load_data as load_data
 
 
 if __name__ == '__main__':
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         '--params',
         dest='param_file',
         type=str,
-        default='./optimal_tile_params.json',
+        default='./config/optimal_tile_params.json',
         help='Tile selection parameters JSON file'
     )
     parser.add_argument(

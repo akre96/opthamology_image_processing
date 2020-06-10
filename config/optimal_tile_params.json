@@ -1,0 +1,24 @@
+{
+    "LSC": {
+        "energy_weight": 0.5,
+        "contrast_weight": 3,
+        "edge_weight": -3,
+        "n_tiles": 3,
+        "canny_sigma": 2,
+        "min_tile_dist": 200,
+        "tile_size": 200,
+        "glcm_n_samples": 500
+    },
+    "BEC": {
+        "energy_weight": 0.5,
+        "contrast_weight": 5,
+        "edge_weight": -2,
+        "n_tiles": 2,
+        "tile_size": 125,
+        "min_tile_dist": 100,
+        "canny_sigma": 3,
+        "glcm_n_samples": 500
+    }
+
+
+}

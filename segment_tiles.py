@@ -12,7 +12,7 @@ Usage:
 python segment_tiles.py Mild/12-od-2/-33.jpg \
     -t BEC \
     -o test_output \
-    -p optimal_tile_params.json \
+    -p config/optimal_tile_params.json \
 
 
 
@@ -44,7 +44,8 @@ import matplotlib.pyplot as plt
 from matplotlib import patches as Patch
 import cv2
 import argparse
-import load_data as ld
+
+import src.load_data as ld
 
 
 class TileSegmenter():
@@ -491,7 +492,7 @@ if __name__ == '__main__':
         '--params',
         dest='param_file',
         type=str,
-        default='./optimal_tile_params.json',
+        default='./config/optimal_tile_params.json',
         help='Tile selection parameters JSON file'
     )
     parser.add_argument(

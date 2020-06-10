@@ -1,8 +1,0 @@
-{
-    "xy_dir": "/Users/akre96/Data/BE_224B/new_aggregate_data/xy",
-    "coord_img_dir": "/Users/akre96/Data/BE_224B/new_aggregate_data/imgs",
-    "limbal_img_dir": "/Users/akre96/Data/BE_224B/Density Research Lab 18 samples",
-    "bcd_dir": "/Users/akre96/Data/BE_224B/Central BCD4",
-    "bcd_ignore_subjects": ["12"],
-    "bcd_metadata": "/Users/akre96/Data/BE_224B/Central BCD2/LSCD grading2.xlsx"
-}
