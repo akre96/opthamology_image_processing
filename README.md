@@ -9,7 +9,7 @@ The goal of this repository is to aide in the cell counting of images taken on c
 ### Calculating Cell Density (full pipeline)
 1. Install configure python 3.7.X environment with required packages from `requirements.txt`
 2. Run the `calculate_cell_density.py` file
-```
+```bash
 python calculate_cell_density.py [path_to_input_image] \
     -t [cell_type (can be either BEC or LSC)]
 ```
@@ -21,7 +21,7 @@ python calculate_cell_density.py [path_to_input_image] \
 ### Just Segmenting Tiles
 1. Install configure python 3.7.X environment with required packages from `requirements.txt`
 2. Run the `segment_tiles.py` file
-```
+```bash
 python segment_tiles.py [path_to_input_image] \
     -t [cell_type (can be either BEC or LSC)]
     -o [path_to_output_directory]
