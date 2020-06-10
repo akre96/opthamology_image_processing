@@ -176,58 +176,70 @@ class TileSegmenter():
         # Plot to view results
         if self.plot_patches:
             print('Plotting output')
-            fig, axes = plt.subplots(ncols=2, figsize=(16, 8))
-            cycle = ['red', 'green', 'blue', 'yellow', 'purple']
-            ec = [cycle[i % len(cycle)] for i in range(self.n_tiles)]
-
-            ax = axes[0]
-            ax.set_title('Attention Map', fontsize=20)
-            ax.imshow(conv)
-            for i, [x, y] in enumerate(centers):
-                rect = Patch.Rectangle(
-                    (x-self.half_ts, y-self.half_ts),
-                    self.tile_size,
-                    self.tile_size,
-                    linewidth=2,
-                    edgecolor=ec[i],
-                    facecolor='none'
-                )
-                ax.add_patch(rect)
-
-            ax = axes[1]
-            ax.set_title('Original Image', fontsize=20)
-            ax.imshow(img, cmap='gray')
-            for i, [x, y] in enumerate(centers):
-                rect = Patch.Rectangle(
-                    (x-self.half_ts, y-self.half_ts),
-                    self.tile_size,
-                    self.tile_size,
-                    linewidth=2,
-                    edgecolor=ec[i],
-                    facecolor='none'
-                )
-                ax.add_patch(rect)
-
-            if self.n_tiles >= 5:
-                cols = 5
-            else:
-                cols = self.n_tiles
-            rows = int(np.ceil(self.n_tiles/5))
-            fig, axes = plt.subplots(
-                ncols=cols,
-                nrows=rows,
-                figsize=(cols*3, 4*rows)
-            )
-            for i, p in enumerate(patches):
-                axes.flatten()[i].imshow(p, cmap='gray')
-                axes.flatten()[i].set_title(
-                    'Rank: ' + str(i) + ' ' + ec[i],
-                    fontsize=15
-                )
-
-            plt.show()
+            self.plot_patch_selection(centers, img, patches, conv)
 
         return patches
+
+    def plot_patch_selection(self, centers: np.array, img, patches, conv: np.array) -> None:
+        """ Plots result of patch selection
+
+        Args:
+            centers (np.array): Center of patch
+            img (cv2 Image): Full input image
+            patches (List[cv2 Image]): Square section of image used as patch
+            conv (np.array): Attention map
+        """
+        fig, axes = plt.subplots(ncols=2, figsize=(16, 8))
+        cycle = ['red', 'green', 'blue', 'yellow', 'purple']
+        ec = [cycle[i % len(cycle)] for i in range(self.n_tiles)]
+
+        ax = axes[0]
+        ax.set_title('Attention Map', fontsize=20)
+        ax.imshow(conv)
+        for i, [x, y] in enumerate(centers):
+            rect = Patch.Rectangle(
+                (x-self.half_ts, y-self.half_ts),
+                self.tile_size,
+                self.tile_size,
+                linewidth=2,
+                edgecolor=ec[i],
+                facecolor='none'
+            )
+            ax.add_patch(rect)
+
+        ax = axes[1]
+        ax.set_title('Original Image', fontsize=20)
+        ax.imshow(img, cmap='gray')
+        for i, [x, y] in enumerate(centers):
+            rect = Patch.Rectangle(
+                (x-self.half_ts, y-self.half_ts),
+                self.tile_size,
+                self.tile_size,
+                linewidth=2,
+                edgecolor=ec[i],
+                facecolor='none'
+            )
+            ax.add_patch(rect)
+
+        if self.n_tiles >= 5:
+            cols = 5
+        else:
+            cols = self.n_tiles
+        rows = int(np.ceil(self.n_tiles/5))
+        fig, axes = plt.subplots(
+            ncols=cols,
+            nrows=rows,
+            figsize=(cols*3, 4*rows)
+        )
+        for i, p in enumerate(patches):
+            axes.flatten()[i].imshow(p, cmap='gray')
+            axes.flatten()[i].set_title(
+                'Rank: ' + str(i) + ' ' + ec[i],
+                fontsize=15
+            )
+
+        plt.show()
+
 
     def calc_edge_penalty(
         self,
