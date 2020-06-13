@@ -89,7 +89,11 @@ def generateCentroid(imgmat,yellow,sizeCutoff):
         yellow: the color threshold hyperparameter. Set to default value of 165
         sizeCutoff: the cell masl size hyperparameter. Set to default value of 20
     """
-    mask=makeMask(imgmat,yellow)
-    label_image = label(mask)
-    centroids=centroidFromMask(label_image,sizeCutoff)
-    return centroids
+    if len(imgmat.shape) != 3:
+        raise ValueError('Limbal cell images must be RGB')
+        return
+    else:
+        mask=makeMask(imgmat,yellow)
+        label_image = label(mask)
+        centroids=centroidFromMask(label_image,sizeCutoff)
+        return centroids

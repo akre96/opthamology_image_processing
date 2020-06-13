@@ -11,3 +11,6 @@ __pycache__
 
 # Notebook checkpoints
 .ipynb_checkpoints
+
+# Other files
+*.jpg
