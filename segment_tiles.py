@@ -62,6 +62,7 @@ class TileSegmenter():
         plot_patches: bool = False,
         rand_seed: int = 0,
         show_tqdm: bool = True,
+        random_tiles: bool = False,
     ):
         """ Initialize Tile Segmenter
 
@@ -88,6 +89,8 @@ class TileSegmenter():
             rand_seed {int} -- Random seed for point selection (default: {0})
             show_tqdm {bool} -- Set False to hide progressbars for internal
                 processes (default: {True})
+            random_tile {bool} -- Select random tiles instead of using
+                attention matrix
         """
         self.tile_size = tile_size
         self.half_ts = int(round(tile_size/2))
@@ -102,6 +105,7 @@ class TileSegmenter():
         self.show_tqdm = show_tqdm
         self.rand_seed = rand_seed
         self.xys: Any = None
+        self.random_tiles = random_tiles
 
     def segment_tiles(
         self,
@@ -136,8 +140,12 @@ class TileSegmenter():
         else:
             gray = img
 
+        if self.xys is None:
+            self.xys = self.get_xy_subsample_noedge(
+                gray.shape,
+            )
         # Calculate gray level features for a subset of tiles
-        [contrast_mat, energy_mat], xys = self.get_greycoprop_matrices(
+        contrast_mat, energy_mat = self.get_greycoprop_matrices(
             gray,
             props=['contrast', 'energy'],
         )
@@ -162,15 +170,22 @@ class TileSegmenter():
         # Convolution over summed features to get attention map
         conv = self.quick_conv_sum(
             sum_mat,
-            xys,
             func=np.mean,
         )
 
         # Remove edge areas from attention map
         conv = self.border_to_min(conv)
 
-        # Get n_tiles top tiles
-        centers = self.get_top_xy(conv)
+
+        # If random_tile selection set to true, pull random patches
+        if self.random_tiles:
+            blank_img = np.ones(gray.shape)
+            blank_img[0, 0] = 0
+            centers = self.get_top_xy(self.border_to_min(blank_img))
+        else:
+            # Get n_tiles top tiles
+            centers = self.get_top_xy(conv)
+
         patches = self.get_patches(img, centers)
 
         # Plot to view results
@@ -240,7 +255,6 @@ class TileSegmenter():
 
         plt.show()
 
-
     def calc_edge_penalty(
         self,
         img,
@@ -296,7 +310,6 @@ class TileSegmenter():
     def quick_conv_sum(
         self,
         attention_matrix: np.array,
-        xys: List = None,
         func=np.mean,
     ) -> np.array:
         """ Applies a function to tiles in an image simulating a convolution on
@@ -315,14 +328,10 @@ class TileSegmenter():
         """
         total_pixels = attention_matrix.shape[0] * attention_matrix.shape[1]
         radius = int(round(total_pixels / self.glcm_n_samples / 2**5))
-        if self.xys is None:
-            self.xys = self.get_xy_subsample_noedge(
-                attention_matrix.shape,
-            )
         conv = np.zeros(attention_matrix.shape)
         conv[:, :] = attention_matrix.min()
         iterator = tqdm(
-            xys,
+            self.xys,
             total=self.glcm_n_samples,
             desc='Quick Convolution',
             disable=not self.show_tqdm
@@ -384,7 +393,7 @@ class TileSegmenter():
             List[np.array] -- List of GLCM images. shape: len(props)
         """
         glcm_prop_matrices = [np.zeros(img.shape) for _ in props]
-        xys = self.get_xy_subsample_noedge(img.shape)
+        xys = self.xys
         half_ts = self.half_ts
         iterator = tqdm(
             xys,
@@ -399,7 +408,7 @@ class TileSegmenter():
                 prop_val = greycoprops(glcm, prop)
                 glcm_prop_matrices[i][x, y] = prop_val
 
-        return glcm_prop_matrices, xys
+        return glcm_prop_matrices
 
     def get_xy_subsample_noedge(
         self,
