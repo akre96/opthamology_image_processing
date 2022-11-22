@@ -9,7 +9,7 @@ networkx==2.4
 numpy==1.18.5
 opencv-python==4.2.0.34
 pandas==1.0.4
-Pillow==7.1.2
+Pillow==9.3.0
 pykwalify==1.7.0
 pyparsing==2.4.7
 pyradiomics==3.0
